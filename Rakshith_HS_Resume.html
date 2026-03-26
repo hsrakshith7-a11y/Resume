@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Rakshith H S — CyberArk PAM & SailPoint IAM Analyst</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+:root {
+  --primary:   #6366f1;
+  --primary-d: #4f46e5;
+  --accent:    #06b6d4;
+  --green:     #10b981;
+  --amber:     #f59e0b;
+  --red:       #ef4444;
+  --bg:        #060610;
+  --bg2:       #0d0d1a;
+  --surface:   #12121f;
+  --surface2:  #1a1a2e;
+  --surface3:  #20203a;
+  --border:    rgba(255,255,255,.07);
+  --text:      #e2e2f0;
+  --muted:     #6b6b8a;
+  --glow:      rgba(99,102,241,.3);
+  --glow-c:    rgba(6,182,212,.2);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--primary);border-radius:99px}
+
+/* ── ANIMATED BACKGROUND ── */
+body::before{
+  content:'';position:fixed;inset:0;z-index:-1;
+  background:
+    radial-gradient(ellipse 50% 50% at 0% 0%,  rgba(99,102,241,.12) 0%,transparent 60%),
+    radial-gradient(ellipse 40% 60% at 100% 100%,rgba(6,182,212,.08)  0%,transparent 60%),
+    radial-gradient(ellipse 30% 40% at 50% 80%, rgba(16,185,129,.06) 0%,transparent 60%);
+  pointer-events:none;
+}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  background:rgba(6,6,16,.85);backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  padding:0 40px;
+  display:flex;align-items:center;justify-content:space-between;
+  height:64px;
+}
+.nav-logo{
+  font-size:16px;font-weight:800;color:#fff;
+  background:linear-gradient(135deg,var(--primary),var(--accent));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.nav-links{display:flex;gap:4px}
+.nav-links a{
+  padding:7px 14px;border-radius:8px;font-size:13px;font-weight:500;
+  color:var(--muted);text-decoration:none;transition:all .2s;
+}
+.nav-links a:hover{color:#fff;background:rgba(255,255,255,.06)}
+.nav-links a.active{color:var(--primary);background:rgba(99,102,241,.12)}
+.nav-download{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:8px 18px;border-radius:8px;font-size:13px;font-weight:600;
+  background:linear-gradient(135deg,var(--primary),var(--primary-d));
+  color:#fff;text-decoration:none;border:none;cursor:pointer;
+  transition:all .2s;box-shadow:0 4px 15px var(--glow);
+}
+.nav-download:hover{transform:translateY(-1px);box-shadow:0 6px 25px var(--glow)}
+
+/* ── HERO ── */
+.hero{
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  padding:100px 40px 60px;position:relative;
+}
+.hero-grid{
+  max-width:1100px;width:100%;
+  display:grid;grid-template-columns:1fr 340px;gap:60px;align-items:center;
+}
+.hero-eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(99,102,241,.12);border:1px solid rgba(99,102,241,.25);
+  border-radius:99px;padding:5px 16px;font-size:12px;font-weight:600;
+  color:var(--primary);letter-spacing:.5px;text-transform:uppercase;margin-bottom:20px;
+}
+.hero-eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--primary);
+  animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.4)}}
+.hero-name{
+  font-size:clamp(32px,5vw,60px);font-weight:900;color:#fff;line-height:1.1;
+  margin-bottom:14px;
+}
+.hero-name span{
+  background:linear-gradient(135deg,var(--primary) 0%,var(--accent) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.hero-title{
+  font-size:clamp(14px,2vw,20px);font-weight:600;
+  color:var(--accent);margin-bottom:20px;font-family:'JetBrains Mono',monospace;
+}
+.hero-summary{
+  font-size:15px;line-height:1.8;color:#a0a0b8;max-width:580px;margin-bottom:32px;
+}
+.hero-contacts{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:36px}
+.contact-chip{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:10px;padding:8px 16px;font-size:13px;color:#ccc;
+  text-decoration:none;transition:all .2s;
+}
+.contact-chip i{color:var(--primary);font-size:14px}
+.contact-chip:hover{border-color:var(--primary);color:#fff;background:rgba(99,102,241,.1)}
+.hero-btns{display:flex;gap:12px;flex-wrap:wrap}
+.btn-primary{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:12px 28px;border-radius:10px;font-size:14px;font-weight:700;
+  background:linear-gradient(135deg,var(--primary),var(--primary-d));
+  color:#fff;text-decoration:none;border:none;cursor:pointer;
+  transition:all .2s;box-shadow:0 4px 20px var(--glow);
+}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 30px var(--glow)}
+.btn-outline{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:12px 28px;border-radius:10px;font-size:14px;font-weight:700;
+  background:transparent;color:var(--primary);text-decoration:none;
+  border:1px solid rgba(99,102,241,.4);transition:all .2s;
+}
+.btn-outline:hover{background:rgba(99,102,241,.1);border-color:var(--primary)}
+
+/* ── HERO CARD ── */
+.hero-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:24px;padding:36px;position:relative;overflow:hidden;
+}
+.hero-card::before{
+  content:'';position:absolute;top:-60px;right:-60px;
+  width:200px;height:200px;border-radius:50%;
+  background:radial-gradient(circle,rgba(99,102,241,.18) 0%,transparent 70%);
+}
+.hero-avatar{
+  width:90px;height:90px;border-radius:20px;margin-bottom:20px;
+  background:linear-gradient(135deg,var(--primary),var(--accent));
+  display:flex;align-items:center;justify-content:center;
+  font-size:36px;font-weight:900;color:#fff;
+  box-shadow:0 8px 30px var(--glow);
+}
+.hero-card h3{font-size:18px;font-weight:800;color:#fff;margin-bottom:4px}
+.hero-card p{font-size:13px;color:var(--muted);margin-bottom:20px}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.stat-item{
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:12px;padding:14px;text-align:center;
+}
+.stat-num{font-size:22px;font-weight:800;color:var(--primary);line-height:1}
+.stat-lbl{font-size:10px;color:var(--muted);margin-top:4px;font-weight:600;letter-spacing:.5px;text-transform:uppercase}
+.avail-badge{
+  display:flex;align-items:center;gap:8px;margin-top:18px;
+  background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.25);
+  border-radius:10px;padding:10px 14px;font-size:12px;font-weight:600;color:#34d399;
+}
+.avail-dot{width:8px;height:8px;border-radius:50%;background:#10b981;
+  animation:pulse 2s infinite;flex-shrink:0}
+
+/* ── SECTION CONTAINER ── */
+.section{padding:80px 40px;max-width:1100px;margin:0 auto}
+.section-full{padding:80px 0}
+.section-full-inner{max-width:1100px;margin:0 auto;padding:0 40px}
+.section-label{
+  display:inline-flex;align-items:center;gap:8px;margin-bottom:12px;
+  font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+  color:var(--primary);
+}
+.section-label::before{content:'';width:20px;height:2px;border-radius:1px;background:var(--primary)}
+.section-title{font-size:clamp(24px,3vw,36px);font-weight:800;color:#fff;margin-bottom:8px}
+.section-sub{font-size:15px;color:var(--muted);margin-bottom:44px;max-width:540px}
+
+/* ── SKILLS ── */
+.skills-bg{background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.skills-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px}
+.skill-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:18px;padding:26px;transition:all .3s;position:relative;overflow:hidden;
+}
+.skill-card:hover{border-color:rgba(99,102,241,.3);transform:translateY(-4px);box-shadow:0 20px 50px rgba(0,0,0,.3)}
+.skill-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--primary),var(--accent));
+  transform:scaleX(0);transform-origin:left;transition:transform .3s;
+}
+.skill-card:hover::before{transform:scaleX(1)}
+.skill-icon{
+  width:44px;height:44px;border-radius:12px;margin-bottom:14px;
+  background:rgba(99,102,241,.15);border:1px solid rgba(99,102,241,.2);
+  display:flex;align-items:center;justify-content:center;font-size:20px;
+}
+.skill-card h4{font-size:14px;font-weight:700;color:#fff;margin-bottom:10px}
+.skill-tags{display:flex;flex-wrap:wrap;gap:6px}
+.tag{
+  background:rgba(255,255,255,.05);border:1px solid var(--border);
+  border-radius:6px;padding:3px 10px;font-size:11px;color:#9090b0;font-weight:500;
+}
+.tag.highlight{background:rgba(99,102,241,.12);border-color:rgba(99,102,241,.25);color:var(--primary)}
+
+/* ── EXPERIENCE ── */
+.timeline{position:relative;padding-left:32px}
+.timeline::before{
+  content:'';position:absolute;left:8px;top:0;bottom:0;width:2px;
+  background:linear-gradient(180deg,var(--primary) 0%,var(--accent) 50%,transparent 100%);
+}
+.timeline-item{position:relative;margin-bottom:40px}
+.timeline-dot{
+  position:absolute;left:-28px;top:6px;
+  width:16px;height:16px;border-radius:50%;
+  background:linear-gradient(135deg,var(--primary),var(--accent));
+  border:2px solid var(--bg);
+  box-shadow:0 0 0 4px rgba(99,102,241,.2);
+}
+.exp-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:18px;padding:28px;transition:all .3s;
+}
+.exp-card:hover{border-color:rgba(99,102,241,.25);box-shadow:0 8px 40px rgba(0,0,0,.25)}
+.exp-header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:6px;flex-wrap:wrap}
+.exp-role{font-size:18px;font-weight:800;color:#fff}
+.exp-badge{
+  background:rgba(99,102,241,.12);border:1px solid rgba(99,102,241,.25);
+  border-radius:99px;padding:4px 14px;font-size:12px;font-weight:700;
+  color:var(--primary);white-space:nowrap;flex-shrink:0;
+}
+.exp-company{font-size:14px;color:var(--accent);font-weight:600;margin-bottom:4px}
+.exp-client{font-size:13px;color:var(--muted);margin-bottom:18px}
+.exp-section{margin-bottom:16px}
+.exp-section-title{
+  font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--primary);margin-bottom:10px;display:flex;align-items:center;gap:6px;
+}
+.exp-section-title i{font-size:11px}
+.bullet-list{list-style:none;display:flex;flex-direction:column;gap:8px}
+.bullet-list li{
+  font-size:13.5px;color:#b0b0c8;line-height:1.7;
+  padding-left:18px;position:relative;
+}
+.bullet-list li::before{
+  content:'';position:absolute;left:0;top:9px;
+  width:6px;height:6px;border-radius:50%;
+  background:var(--primary);flex-shrink:0;
+}
+.bullet-list li b,.bullet-list li strong{color:#e0e0f0;font-weight:600}
+
+/* ── CERTS ── */
+.certs-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+.cert-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:16px;padding:22px;display:flex;gap:14px;align-items:flex-start;
+  transition:all .3s;
+}
+.cert-card:hover{border-color:rgba(99,102,241,.3);transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,.25)}
+.cert-icon{
+  width:44px;height:44px;border-radius:12px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:20px;
+  background:rgba(6,182,212,.12);border:1px solid rgba(6,182,212,.2);
+}
+.cert-name{font-size:14px;font-weight:700;color:#fff;margin-bottom:4px}
+.cert-issuer{font-size:12px;color:var(--muted)}
+.cert-verified{
+  display:inline-flex;align-items:center;gap:4px;margin-top:6px;
+  font-size:11px;color:#10b981;font-weight:600;
+}
+
+/* ── ACHIEVEMENTS ── */
+.ach-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.ach-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:16px;padding:22px 22px 22px 20px;
+  display:flex;gap:14px;align-items:flex-start;
+  transition:all .3s;position:relative;overflow:hidden;
+}
+.ach-card::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;width:3px;
+  background:linear-gradient(180deg,var(--primary),var(--accent));
+  border-radius:0 0 0 0;
+}
+.ach-card:hover{border-color:rgba(99,102,241,.25);box-shadow:0 8px 30px rgba(0,0,0,.2)}
+.ach-icon{font-size:24px;flex-shrink:0;margin-top:2px}
+.ach-text{font-size:14px;color:#b0b0c8;line-height:1.7}
+.ach-text b{color:#fff}
+
+/* ── EDUCATION ── */
+.edu-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:18px;padding:30px;display:flex;gap:22px;align-items:flex-start;
+  max-width:700px;
+}
+.edu-icon{
+  width:60px;height:60px;border-radius:16px;flex-shrink:0;
+  background:linear-gradient(135deg,var(--primary),var(--accent));
+  display:flex;align-items:center;justify-content:center;font-size:26px;
+  box-shadow:0 6px 20px var(--glow);
+}
+.edu-degree{font-size:17px;font-weight:800;color:#fff;margin-bottom:4px}
+.edu-field{font-size:14px;color:var(--primary);font-weight:600;margin-bottom:4px}
+.edu-college{font-size:13px;color:#ccc;margin-bottom:2px}
+.edu-uni{font-size:12px;color:var(--muted)}
+.edu-location{
+  display:inline-flex;align-items:center;gap:5px;margin-top:10px;
+  background:rgba(255,255,255,.05);border:1px solid var(--border);
+  border-radius:99px;padding:4px 12px;font-size:12px;color:var(--muted);
+}
+
+/* ── FOOTER ── */
+footer{
+  background:var(--bg2);border-top:1px solid var(--border);
+  padding:40px;text-align:center;
+}
+.footer-text{font-size:13px;color:var(--muted);line-height:2}
+.footer-text a{color:var(--primary);text-decoration:none}
+.footer-text a:hover{text-decoration:underline}
+.footer-social{display:flex;justify-content:center;gap:12px;margin-top:16px}
+.social-btn{
+  width:40px;height:40px;border-radius:10px;
+  background:var(--surface);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  color:var(--muted);text-decoration:none;font-size:16px;transition:all .2s;
+}
+.social-btn:hover{border-color:var(--primary);color:var(--primary);background:rgba(99,102,241,.1)}
+
+/* ── DIVIDER ── */
+.divider{border:none;border-top:1px solid var(--border);margin:0}
+
+/* ── SCROLL TO TOP ── */
+#scrollTop{
+  position:fixed;bottom:28px;right:28px;z-index:99;
+  width:44px;height:44px;border-radius:12px;
+  background:linear-gradient(135deg,var(--primary),var(--primary-d));
+  color:#fff;border:none;cursor:pointer;font-size:16px;
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;transition:all .3s;box-shadow:0 4px 16px var(--glow);
+}
+#scrollTop.show{opacity:1}
+#scrollTop:hover{transform:translateY(-2px)}
+
+/* ── RESPONSIVE ── */
+@media(max-width:800px){
+  .hero-grid{grid-template-columns:1fr}
+  .hero-card{display:none}
+  nav{padding:0 20px}
+  .nav-links{display:none}
+  .section{padding:60px 20px}
+  .section-full-inner{padding:0 20px}
+}
+
+/* ── FADE IN ANIMATION ── */
+.fade-in{opacity:0;transform:translateY(24px);transition:all .6s ease}
+.fade-in.visible{opacity:1;transform:translateY(0)}
+</style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+  <div class="nav-logo">RHS</div>
+  <div class="nav-links">
+    <a href="#about" class="active">About</a>
+    <a href="#skills">Skills</a>
+    <a href="#experience">Experience</a>
+    <a href="#certifications">Certs</a>
+    <a href="#achievements">Achievements</a>
+    <a href="#education">Education</a>
+  </div>
+  <a href="mailto:hsrakshith7@gmail.com" class="nav-download">
+    <i class="fa fa-envelope"></i> Hire Me
+  </a>
+</nav>
+
+<!-- ── HERO ── -->
+<section class="hero" id="about">
+  <div class="hero-grid">
+    <div class="fade-in">
+      <div class="hero-eyebrow">
+        <span class="dot"></span>
+        Available for Opportunities
+      </div>
+      <h1 class="hero-name">
+        Rakshith<br><span>H S</span>
+      </h1>
+      <div class="hero-title">› CyberArk PAM &amp; SailPoint IAM Analyst</div>
+      <p class="hero-summary">
+        Results-driven <strong style="color:#e2e2f0">CyberArk PAM</strong> and <strong style="color:#e2e2f0">SailPoint IAM Analyst</strong> with <strong style="color:var(--primary)">3.8+ years</strong> of hands-on experience in enterprise Privileged Access Management and Identity Governance &amp; Administration across global retail and corporate environments. Proven track record in achieving <strong style="color:#10b981">zero-finding audit outcomes</strong> across SOX, PCI-DSS &amp; GDPR environments.
+      </p>
+      <div class="hero-contacts">
+        <a href="tel:+918088774497" class="contact-chip"><i class="fa fa-phone"></i> +91 8088774497</a>
+        <a href="mailto:hsrakshith7@gmail.com" class="contact-chip"><i class="fa fa-envelope"></i> hsrakshith7@gmail.com</a>
+        <span class="contact-chip"><i class="fa fa-location-dot"></i> Bangalore, India</span>
+      </div>
+      <div class="hero-btns">
+        <a href="mailto:hsrakshith7@gmail.com" class="btn-primary"><i class="fa fa-paper-plane"></i> Get In Touch</a>
+        <a href="#experience" class="btn-outline"><i class="fa fa-briefcase"></i> View Experience</a>
+      </div>
+    </div>
+
+    <div class="hero-card fade-in" style="transition-delay:.2s">
+      <div class="hero-avatar">R</div>
+      <h3>Rakshith H S</h3>
+      <p>CyberArk PAM &amp; SailPoint IAM Analyst</p>
+      <div class="stats-grid">
+        <div class="stat-item">
+          <div class="stat-num">3.8+</div>
+          <div class="stat-lbl">Years Exp</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">1500+</div>
+          <div class="stat-lbl">Accounts</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">0</div>
+          <div class="stat-lbl">Audit Findings</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">95%+</div>
+          <div class="stat-lbl">Cert Rate</div>
+        </div>
+      </div>
+      <div class="avail-badge">
+        <span class="avail-dot"></span>
+        Available for new opportunities
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ── SKILLS ── -->
+<div class="skills-bg" id="skills">
+  <div class="section-full-inner" style="padding-top:80px;padding-bottom:80px">
+    <div class="fade-in">
+      <div class="section-label">Technical Skills</div>
+      <h2 class="section-title">Core Competencies</h2>
+      <p class="section-sub">Enterprise-grade expertise across PAM, IAM, identity lifecycle, compliance, and security tooling.</p>
+    </div>
+    <div class="skills-grid">
+      <div class="skill-card fade-in">
+        <div class="skill-icon">🛡️</div>
+        <h4>PAM Platforms</h4>
+        <div class="skill-tags">
+          <span class="tag highlight">CyberArk PAS</span>
+          <span class="tag highlight">Vault</span>
+          <span class="tag highlight">PVWA</span>
+          <span class="tag highlight">CPM</span>
+          <span class="tag highlight">PSM</span>
+          <span class="tag highlight">PSMP</span>
+          <span class="tag highlight">PTA</span>
+          <span class="tag">CyberArk EPM</span>
+          <span class="tag">Delinea Secret Server</span>
+          <span class="tag">BeyondTrust</span>
+          <span class="tag">Saviynt</span>
+        </div>
+      </div>
+      <div class="skill-card fade-in" style="transition-delay:.1s">
+        <div class="skill-icon">👤</div>
+        <h4>IAM Platforms</h4>
+        <div class="skill-tags">
+          <span class="tag highlight">SailPoint IdentityIQ</span>
+          <span class="tag">Provisioning</span>
+          <span class="tag">Access Certifications</span>
+          <span class="tag">Role Management</span>
+          <span class="tag">SoD</span>
+        </div>
+      </div>
+      <div class="skill-card fade-in" style="transition-delay:.15s">
+        <div class="skill-icon">🔐</div>
+        <h4>Identity &amp; Security</h4>
+        <div class="skill-tags">
+          <span class="tag highlight">PAM</span>
+          <span class="tag highlight">IGA</span>
+          <span class="tag">IAM Lifecycle (JML)</span>
+          <span class="tag">RBAC</span>
+          <span class="tag">Least Privilege</span>
+          <span class="tag">Access Reviews</span>
+          <span class="tag">SoD</span>
+        </div>
+      </div>
+      <div class="skill-card fade-in" style="transition-delay:.2s">
+        <div class="skill-icon">🖥️</div>
+        <h4>Systems &amp; Infrastructure</h4>
+        <div class="skill-tags">
+          <span class="tag">Windows Server</span>
+          <span class="tag">Linux / Unix</span>
+          <span class="tag">Active Directory</span>
+          <span class="tag">LDAP</span>
+          <span class="tag">MS SQL Server</span>
+          <span class="tag">Oracle</span>
+          <span class="tag">RDP</span>
+          <span class="tag">SSH</span>
+          <span class="tag">SSL / TLS</span>
+        </div>
+      </div>
+      <div class="skill-card fade-in" style="transition-delay:.25s">
+        <div class="skill-icon">🔗</div>
+        <h4>Integrations</h4>
+        <div class="skill-tags">
+          <span class="tag highlight">ServiceNow (ITSM)</span>
+          <span class="tag highlight">Splunk</span>
+          <span class="tag">SIEM</span>
+          <span class="tag">CyberArk REST APIs</span>
+        </div>
+      </div>
+      <div class="skill-card fade-in" style="transition-delay:.3s">
+        <div class="skill-icon">📋</div>
+        <h4>Compliance &amp; Audit</h4>
+        <div class="skill-tags">
+          <span class="tag highlight">SOX</span>
+          <span class="tag highlight">PCI-DSS</span>
+          <span class="tag highlight">GDPR</span>
+          <span class="tag">Internal Audit</span>
+          <span class="tag">External Audit</span>
+          <span class="tag">Evidence Reporting</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- ── EXPERIENCE ── -->
+<section class="section" id="experience">
+  <div class="fade-in">
+    <div class="section-label">Experience</div>
+    <h2 class="section-title">Professional Journey</h2>
+    <p class="section-sub">4 years of enterprise-grade PAM &amp; IAM delivery at Capgemini for a global retail MNC.</p>
+  </div>
+
+  <div class="timeline">
+    <div class="timeline-item fade-in">
+      <div class="timeline-dot"></div>
+      <div class="exp-card">
+        <div class="exp-header">
+          <div>
+            <div class="exp-role">CyberArk PAM &amp; SailPoint IAM Analyst</div>
+            <div class="exp-company">Capgemini</div>
+            <div class="exp-client">Client: IRB Holding Corporation (Global Retail MNC) · Bangalore, India</div>
+          </div>
+          <span class="exp-badge">April 2022 – Present</span>
+        </div>
+
+        <!-- CyberArk PAM -->
+        <div class="exp-section">
+          <div class="exp-section-title"><i class="fa fa-shield"></i> CyberArk PAM</div>
+          <ul class="bullet-list">
+            <li>Administered enterprise CyberArk PAM environment managing <strong>1,500+ privileged accounts</strong> across Windows, Linux, database, and network platforms — achieving <strong>100% password policy compliance</strong>.</li>
+            <li>Installed, configured, and maintained all CyberArk PAS components (<strong>Vault, PVWA, CPM, PSM, PSMP</strong>) in production; supported version upgrades and Distributed Engine patch cycles with <strong>zero downtime</strong>.</li>
+            <li>Managed end-to-end privileged and service account lifecycle: onboarding, offboarding, access reviews, and policy enforcement across <strong>10+ business units</strong>.</li>
+            <li>Implemented and fine-tuned automated password rotation, reconciliation, and credential access workflows — <strong>reducing manual intervention by 40%</strong> and eliminating credential-sharing incidents.</li>
+            <li>Executed privileged account discovery for local, domain, and service accounts; identified and remediated <strong>200+ orphaned/unmanaged accounts</strong>.</li>
+            <li>Managed application service account dependencies in coordination with <strong>15+ application owners</strong>, ensuring zero business disruption during credential rotations.</li>
+            <li>Integrated CyberArk with <strong>Active Directory, ServiceNow (ITSM), and SIEM/Splunk</strong> for automated request validation, session monitoring, and real-time alerting.</li>
+            <li>Deployed and managed <strong>CyberArk EPM</strong> to enforce least privilege across <strong>500+ corporate endpoints</strong> and retail POS systems — reducing local admin exposure.</li>
+            <li>Resolved <strong>30+ PAM incidents and service requests monthly</strong>; performed root cause analysis and documented playbooks for recurring issues.</li>
+            <li>Supported <strong>SOX, PCI-DSS, and GDPR audits</strong> — provided access evidence, exception reports, and remediation artifacts; contributed to <strong>zero critical audit findings</strong> across two consecutive audit cycles.</li>
+          </ul>
+        </div>
+
+        <!-- SailPoint IIQ -->
+        <div class="exp-section">
+          <div class="exp-section-title"><i class="fa fa-users"></i> SailPoint IdentityIQ</div>
+          <ul class="bullet-list">
+            <li>Administered SailPoint IdentityIQ for <strong>JML (Joiner–Mover–Leaver)</strong> identity lifecycle processes covering <strong>600+ identities</strong> across Active Directory and 12+ enterprise applications.</li>
+            <li>Executed role-based access provisioning and de-provisioning workflows aligned with RBAC policies — <strong>reducing access fulfilment time by 30%</strong>.</li>
+            <li>Managed quarterly access certification campaigns for <strong>800+ user accounts</strong> — coordinated manager reviews, tracked completion rates to <strong>95%+</strong>, and executed remediation for revoked entitlements.</li>
+            <li>Maintained <strong>SoD (Segregation of Duties)</strong> policy compliance across critical application roles; identified and remediated <strong>50+ SoD violations</strong> during bi-annual reviews.</li>
+            <li>Supported SailPoint integrations with Active Directory and downstream enterprise applications; participated in connector testing and data validation during integration rollouts.</li>
+            <li>Generated identity and access reports for compliance and internal audit teams; ensured SailPoint data aligned with authoritative HR and AD sources.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ── CERTIFICATIONS ── -->
+<div class="skills-bg" id="certifications">
+  <div class="section-full-inner" style="padding-top:80px;padding-bottom:80px">
+    <div class="fade-in">
+      <div class="section-label">Certifications</div>
+      <h2 class="section-title">Professional Credentials</h2>
+      <p class="section-sub">Industry-recognised certifications in PAM, IAM, ITSM, and database technologies.</p>
+    </div>
+    <div class="certs-grid">
+      <div class="cert-card fade-in">
+        <div class="cert-icon">🛡️</div>
+        <div>
+          <div class="cert-name">CyberArk Privileged Access Management for Partners</div>
+          <div class="cert-issuer">CyberArk University</div>
+          <div class="cert-verified"><i class="fa fa-circle-check"></i> Verified</div>
+        </div>
+      </div>
+      <div class="cert-card fade-in" style="transition-delay:.1s">
+        <div class="cert-icon">🪪</div>
+        <div>
+          <div class="cert-name">SailPoint Identity Security Leader Credential</div>
+          <div class="cert-issuer">SailPoint Technologies</div>
+          <div class="cert-verified"><i class="fa fa-circle-check"></i> Verified</div>
+        </div>
+      </div>
+      <div class="cert-card fade-in" style="transition-delay:.15s">
+        <div class="cert-icon">⚙️</div>
+        <div>
+          <div class="cert-name">ITIL 4 Foundation</div>
+          <div class="cert-issuer">AXELOS / PeopleCert</div>
+          <div class="cert-verified"><i class="fa fa-circle-check"></i> Verified</div>
+        </div>
+      </div>
+      <div class="cert-card fade-in" style="transition-delay:.2s">
+        <div class="cert-icon">🗄️</div>
+        <div>
+          <div class="cert-name">Microsoft SQL Database Certification</div>
+          <div class="cert-issuer">Capgemini — Internal Certification</div>
+          <div class="cert-verified"><i class="fa fa-circle-check"></i> Verified</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- ── ACHIEVEMENTS ── -->
+<section class="section" id="achievements">
+  <div class="fade-in">
+    <div class="section-label">Key Achievements</div>
+    <h2 class="section-title">Impact &amp; Results</h2>
+    <p class="section-sub">Measurable outcomes delivered across security, compliance, and operational excellence.</p>
+  </div>
+  <div class="ach-grid">
+    <div class="ach-card fade-in">
+      <span class="ach-icon">🏆</span>
+      <div class="ach-text"><b>Zero critical audit findings</b> across two consecutive SOX/PCI-DSS audit cycles at IRB Holding Corporation.</div>
+    </div>
+    <div class="ach-card fade-in" style="transition-delay:.08s">
+      <span class="ach-icon">🔍</span>
+      <div class="ach-text">Identified and remediated <b>200+ orphaned/unmanaged privileged accounts</b>, significantly reducing the organisation's attack surface.</div>
+    </div>
+    <div class="ach-card fade-in" style="transition-delay:.12s">
+      <span class="ach-icon">📊</span>
+      <div class="ach-text">Drove <b>95%+ access certification completion rate</b> in SailPoint quarterly campaigns, exceeding the 85% enterprise target.</div>
+    </div>
+    <div class="ach-card fade-in" style="transition-delay:.16s">
+      <span class="ach-icon">⚡</span>
+      <div class="ach-text">Reduced manual credential management effort by <b>~40%</b> through implementation of automated CyberArk password rotation workflows.</div>
+    </div>
+    <div class="ach-card fade-in" style="transition-delay:.2s">
+      <span class="ach-icon">🖥️</span>
+      <div class="ach-text">Contributed to CyberArk EPM rollout across <b>500+ endpoints</b>, achieving least privilege enforcement across retail POS infrastructure.</div>
+    </div>
+    <div class="ach-card fade-in" style="transition-delay:.24s">
+      <span class="ach-icon">⚖️</span>
+      <div class="ach-text">Maintained <b>SoD compliance</b> with 50+ violation remediations across critical application roles during bi-annual reviews.</div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ── EDUCATION ── -->
+<div class="skills-bg" id="education">
+  <div class="section-full-inner" style="padding-top:80px;padding-bottom:80px">
+    <div class="fade-in">
+      <div class="section-label">Education</div>
+      <h2 class="section-title">Academic Background</h2>
+      <p class="section-sub">Computer Science engineering foundation from a VTU-affiliated institution in Karnataka.</p>
+    </div>
+    <div class="edu-card fade-in">
+      <div class="edu-icon">🎓</div>
+      <div>
+        <div class="edu-degree">Bachelor of Engineering</div>
+        <div class="edu-field">Computer Science &amp; Engineering</div>
+        <div class="edu-college">Navkis College of Engineering (Hassan)</div>
+        <div class="edu-uni">Visvesvaraya Technological University (VTU)</div>
+        <div class="edu-location"><i class="fa fa-location-dot"></i> Karnataka, India</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-text">
+    <strong style="color:#ccc;font-size:16px">Rakshith H S</strong><br>
+    CyberArk PAM &amp; SailPoint IAM Analyst · Bangalore, India<br>
+    <a href="mailto:hsrakshith7@gmail.com">hsrakshith7@gmail.com</a> &nbsp;·&nbsp;
+    <a href="tel:+918088774497">+91 8088774497</a>
+  </div>
+  <div class="footer-social">
+    <a href="mailto:hsrakshith7@gmail.com" class="social-btn" title="Email"><i class="fa fa-envelope"></i></a>
+    <a href="tel:+918088774497"            class="social-btn" title="Phone"><i class="fa fa-phone"></i></a>
+    <a href="https://www.linkedin.com"     class="social-btn" title="LinkedIn" target="_blank"><i class="fab fa-linkedin-in"></i></a>
+  </div>
+  <p style="margin-top:20px;font-size:11px;color:var(--muted)">© 2026 Rakshith H S · Built with ❤️</p>
+</footer>
+
+<!-- SCROLL TOP -->
+<button id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Back to top">
+  <i class="fa fa-chevron-up"></i>
+</button>
+
+<script>
+// ── SCROLL-BASED NAV HIGHLIGHT ──
+const sections = document.querySelectorAll('section[id], div[id]');
+const navLinks  = document.querySelectorAll('.nav-links a');
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(s => {
+    if (window.scrollY >= s.offsetTop - 100) current = s.id;
+  });
+  navLinks.forEach(a => {
+    a.classList.toggle('active', a.getAttribute('href') === '#' + current);
+  });
+  // scroll to top btn
+  document.getElementById('scrollTop').classList.toggle('show', window.scrollY > 400);
+});
+
+// ── INTERSECTION OBSERVER (FADE IN) ──
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.12 });
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+// ── TYPING EFFECT for hero title ──
+(function(){
+  const el = document.querySelector('.hero-title');
+  if(!el) return;
+  const text = el.textContent;
+  el.textContent = '';
+  let i = 0;
+  const t = setInterval(()=>{
+    el.textContent += text[i++];
+    if(i >= text.length) clearInterval(t);
+  }, 40);
+})();
+</script>
+</body>
+</html>
